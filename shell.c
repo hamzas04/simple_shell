@@ -7,39 +7,40 @@
  */
 int main(void)
 {
-	char command[MAX_COMMAND_LENGTH];
-	char prompt[] = "#cisfun$ ";
+    char command[MAX_COMMAND_LENGTH];
+    char prompt[] = "#cisfun$ ";
 
-	while (1)
-	{
-		printf("%s", prompt);
+    while (1)
+    {
+        printf("%s", prompt);
 
-		if (fgets(command, sizeof(command), stdin) == NULL)
-		{
-			printf("\n");
-			break;
-		}
+        if (fgets(command, sizeof(command), stdin) == NULL)
+        {
+            printf("\n");
+            break;
+        }
 
-		command[strcspn(command, "\n")] = '\0';
+        command[strcspn(command, "\n")] = '\0';
 
-		pid_t pid = fork();
+        pid_t pid = fork();
 
-		if (pid < 0)
-		{
-			perror("fork failed");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid == 0)
-		{
-			execlp(command, command, NULL);
-			printf("%s: No such file or directory\n", command);
-			exit(EXIT_FAILURE);
-		}
-		else
-		{
-			wait(NULL);
-		}
-	}
+        if (pid < 0)
+        {
+            perror("fork failed");
+            exit(EXIT_FAILURE);
+        }
+        else if (pid == 0)
+        {
+            char *args[] = {command, NULL};
+            execvp(command, args);
+            printf("%s: No such file or directory\n", command);
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            wait(NULL);
+        }
+    }
 
-	return (0);
+    return (0);
 }
