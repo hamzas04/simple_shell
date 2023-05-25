@@ -1,52 +1,45 @@
 #include "main.h"
 
 /**
- * main - Program that is a simple UNIX command interpreter
- * @argc: argument count
- * @argv: argument vector
- * @env: the environment
- * Return: 0
+ * main - Entry point for the simple shell program
+ *
+ * Return: Always 0
  */
-int main(int argc, char **argv, char **env)
+int main(void)
 {
-	char *prompt = "#enter";
-	char *line = NULL;
-	char **args = NULL;
-	int i, status, arg_num;
-	static int exit_stat, tally;
-	size_t len = 0;
-	ssize_t read;
-
-	(void)argc;
-	(void)**argv;
+	char command[MAX_COMMAND_LENGTH];
+	char prompt[] = "#cisfun$ ";
 
 	while (1)
 	{
-		if (isatty(STDIN_FILENO) == 1)
-			write(STDOUT_FILENO, prompt, 6);
+		printf("%s", prompt);
 
-		read = getline(&line, &len, stdin);
-		++tally;
-		if (special_char(line, read, &exit_stat) == 127)
-			continue;
+		if (fgets(command, sizeof(command), stdin) == NULL)
+		{
+			printf("\n");
+			break;
+		}
 
-		no_nl(line);
+		command[strcspn(command, "\n")] = '\0';
 
-		args = parser(line);
+		pid_t pid = fork();
 
-		arg_num = 0;
-		for (i = 0; args[i]; i++)
-			arg_num++;
-
-		builtins(line, args, env, &exit_stat);
-
-		status = _path(args[0], args, env, &exit_stat);
-
-		_execute(status, args, &exit_stat, &tally);
-
-		fflush(stdin);
+		if (pid < 0)
+		{
+			perror("fork failed");
+			exit(EXIT_FAILURE);
+		}
+		else if (pid == 0)
+		{
+			execlp(command, command, NULL);
+			printf("%s: No such file or directory\n", command);
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			wait(NULL);
+		}
 	}
 
-	free(line);
-	return (0);
+	return 0;
 }
