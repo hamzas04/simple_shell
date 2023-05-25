@@ -1,44 +1,73 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "main.h"
 
-#define BUFFER_SIZE 1024
+/**
+ * display_prompt - Displays the shell prompt
+ */
+void display_prompt(void)
+{
+	printf("#cisfun$ ");
+}
+
+/**
+ * execute_command - Executes the given command
+ * @command: The command to be executed
+ */
+void execute_command(char *command)
+{
+	pid_t pid = fork();
+
+	if (pid < 0)
+	{
+		perror("fork");
+	}
+	else if (pid == 0)
+	{
+		execlp(command, command, NULL);
+		perror(command);
+		exit(1);
+	}
+	else
+	{
+		wait(NULL);
+	}
+}
+
+/**
+ * handle_ctrl_d - Handles the Ctrl+D signal
+ */
+void handle_ctrl_d(void)
+{
+	printf("\n");
+}
 
 /**
  * main - Entry point of the shell program
  *
- * Return: Always 0 (Success)
+ * Return: Always 0
  */
-int main() {
-	char buffer[BUFFER_SIZE];
-	char prompt[] = "#cisfun$ ";
-	
-	while (1) {
-		printf("%s", prompt);
-		fflush(stdout);
+int main(void)
+{
+	char command[MAX_COMMAND_LENGTH];
 
-		if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
-			printf("\n");
-			break; // End of file condition (Ctrl+D)
+	while (1)
+	{
+		display_prompt();
+
+		if (fgets(command, sizeof(command), stdin) == NULL)
+		{
+			handle_ctrl_d();
+			break;
 		}
-		
-		buffer[strcspn(buffer, "\n")] = '\0';
-		
-		pid_t pid = fork();
-		if (pid == 0) {
-			// Child process
-			execlp(buffer, buffer, NULL);
-			
-			printf("%s: command not found\n", buffer);
-			exit(1);
-		} else if (pid < 0) {
-			printf("Fork failed\n");
-			exit(1);
-		} else {
-			wait(NULL);
+
+		command[strcspn(command, "\n")] = '\0';
+
+		if (strlen(command) == 0)
+		{
+			continue;
 		}
+
+		execute_command(command);
 	}
-	
+
 	return 0;
 }
