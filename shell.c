@@ -1,73 +1,52 @@
 #include "main.h"
 
 /**
- * display_prompt - Displays the shell prompt
+ * main - Program that is a simple UNIX command interpreter
+ * @argc: argument count
+ * @argv: argument vector
+ * @env: the environment
+ * Return: 0
  */
-void display_prompt(void)
+int main(int argc, char **argv, char **env)
 {
-	printf("#cisfun$ ");
-}
+	char *prompt = "#enter";
+	char *line = NULL;
+	char **args = NULL;
+	int i, status, arg_num;
+	static int exit_stat, tally;
+	size_t len = 0;
+	ssize_t read;
 
-/**
- * execute_command - Executes the given command
- * @command: The command to be executed
- */
-void execute_command(char *command)
-{
-	pid_t pid = fork();
-
-	if (pid < 0)
-	{
-		perror("fork");
-	}
-	else if (pid == 0)
-	{
-		execlp(command, command, NULL);
-		perror(command);
-		exit(1);
-	}
-	else
-	{
-		wait(NULL);
-	}
-}
-
-/**
- * handle_ctrl_d - Handles the Ctrl+D signal
- */
-void handle_ctrl_d(void)
-{
-	printf("\n");
-}
-
-/**
- * main - Entry point of the shell program
- *
- * Return: Always 0
- */
-int main(void)
-{
-	char command[MAX_COMMAND_LENGTH];
+	(void)argc;
+	(void)**argv;
 
 	while (1)
 	{
-		display_prompt();
+		if (isatty(STDIN_FILENO) == 1)
+			write(STDOUT_FILENO, prompt, 6);
 
-		if (fgets(command, sizeof(command), stdin) == NULL)
-		{
-			handle_ctrl_d();
-			break;
-		}
-
-		command[strcspn(command, "\n")] = '\0';
-
-		if (strlen(command) == 0)
-		{
+		read = getline(&line, &len, stdin);
+		++tally;
+		if (special_char(line, read, &exit_stat) == 127)
 			continue;
-		}
 
-		execute_command(command);
+		no_nl(line);
+
+		args = parser(line);
+
+		arg_num = 0;
+		for (i = 0; args[i]; i++)
+			arg_num++;
+
+		builtins(line, args, env, &exit_stat);
+
+		status = _path(args[0], args, env, &exit_stat);
+
+		_execute(status, args, &exit_stat, &tally);
+
+		fflush(stdin);
 	}
 
-	return 0;
+	free(line);
+	return (0);
 }
