@@ -3,15 +3,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <signal.h>
+#include <string.h>
 
-#define MAX_COMMAND_LENGTH 100
+#define BUFFER_SIZE 1024
 
 #endif /* MAIN_H */

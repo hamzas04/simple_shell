@@ -1,103 +1,53 @@
 #include "main.h"
-
 /**
  * main - Entry point for the simple shell program
  *
  * Return: Always 0
  */
-int main(int argc, char *argv[]) {
-	char command[MAX_COMMAND_LENGTH];
+int main(void)
+{
+	char buffer[BUFFER_SIZE];
+	pid_t child_pid;
+	int status;
 
-	if (argc == 1) {
-		// Interactive mode
-		while (1) {
-			printf("($) ");
-			if (fgets(command, sizeof(command), stdin) == NULL) {
-				// Handle end of file condition (Ctrl+D)
-				printf("\n");
-				break;
-			}
+	while (1)
+	{
+		printf("#cisfun$ ");
+		fflush(stdout);
 
-			// Remove the trailing newline character
-			command[strcspn(command, "\n")] = '\0';
-
-			pid_t pid = fork();
-			if (pid == -1) {
-				// Fork error
-				perror(argv[0]);
-				exit(EXIT_FAILURE);
-			} else if (pid == 0) {
-				// Child process
-
-				// Execute the command
-				execve(command, (char *[]){command, NULL}, NULL);
-
-				// If execve returns, it means the command was not found
-				fprintf(stderr, "%s: 1: %s: not found\n", argv[0], command);
-				_exit(EXIT_FAILURE);
-			} else {
-				// Parent process
-
-				// Wait for the child process to finish
-				int status;
-				waitpid(pid, &status, 0);
-
-				if (WIFEXITED(status)) {
-					int exit_status = WEXITSTATUS(status);
-					printf("Exit status: %d\n", exit_status);
-				} else if (WIFSIGNALED(status)) {
-					int signal_number = WTERMSIG(status);
-					printf("Terminated by signal: %d\n", signal_number);
-				}
-			}
+		if (fgets(buffer, BUFFER_SIZE, stdin) == NULL)
+		{
+			printf("\n");
+			break;
 		}
-	} else if (argc == 2) {
-		// Non-interactive mode
-		FILE *file = fopen(argv[1], "r");
-		if (file == NULL) {
-			perror(argv[0]);
+
+		buffer[strcspn(buffer, "\n")] = '\0';
+
+		child_pid = fork();
+
+		if (child_pid == -1)
+		{
+			perror("fork");
 			exit(EXIT_FAILURE);
 		}
 
-		while (fgets(command, sizeof(command), file)) {
-			// Remove the trailing newline character
-			command[strcspn(command, "\n")] = '\0';
-
-			pid_t pid = fork();
-			if (pid == -1) {
-				// Fork error
-				perror(argv[0]);
+		if (child_pid == 0)
+		{
+			if (execlp(buffer, buffer, (char *)NULL) == -1)
+			{
+				perror(buffer);
 				exit(EXIT_FAILURE);
-			} else if (pid == 0) {
-				// Child process
-
-				// Execute the command
-				execve(command, (char *[]){command, NULL}, NULL);
-
-				// If execve returns, it means the command was not found
-				fprintf(stderr, "%s: 1: %s: not found\n", argv[0], command);
-				_exit(EXIT_FAILURE);
-			} else {
-				// Parent process
-
-				// Wait for the child process to finish
-				int status;
-				waitpid(pid, &status, 0);
-
-				if (WIFEXITED(status)) {
-					int exit_status = WEXITSTATUS(status);
-					printf("Exit status: %d\n", exit_status);
-				} else if (WIFSIGNALED(status)) {
-					int signal_number = WTERMSIG(status);
-					printf("Terminated by signal: %d\n", signal_number);
-				}
 			}
 		}
+		else
+		{
+			waitpid(child_pid, &status, 0);
 
-		fclose(file);
-	} else {
-		fprintf(stderr, "Usage: %s [script]\n", argv[0]);
-		exit(EXIT_FAILURE);
+			if (WIFEXITED(status) && WEXITSTATUS(status) == EXIT_SUCCESS)
+				continue;
+			else
+				printf("%s: Command not found\n", buffer);
+		}
 	}
 
 	return 0;
