@@ -20,7 +20,7 @@ int (*get_builtin(char *command))(char **args, char **front)
 		{ "unsetenv", shellby_unsetenv },
 		{ "cd", shellby_cd },
 		{ "alias", shellby_alias },
-		{ "help", shellby_help },
+		{ "aid", shellby_help },
 		{ NULL, NULL }
 	};
 	int i;
@@ -170,21 +170,21 @@ int shellby_cd(char **args, char __attribute__((__unused__)) **front)
 int shellby_help(char **args, char __attribute__((__unused__)) **front)
 {
 	if (!args[0])
-		help_all();
+		aid_all();
 	else if (_strcmp(args[0], "alias") == 0)
-		help_alias();
+		aid_alias();
 	else if (_strcmp(args[0], "cd") == 0)
-		help_cd();
+		aid_cd();
 	else if (_strcmp(args[0], "exit") == 0)
-		help_exit();
+		aid_exit();
 	else if (_strcmp(args[0], "env") == 0)
-		help_env();
+		aid_env();
 	else if (_strcmp(args[0], "setenv") == 0)
-		help_setenv();
+		aid_setenv();
 	else if (_strcmp(args[0], "unsetenv") == 0)
-		help_unsetenv();
-	else if (_strcmp(args[0], "help") == 0)
-		help_help();
+		aid_unsetenv();
+	else if (_strcmp(args[0], "aid") == 0)
+		aid_help();
 	else
 		write(STDERR_FILENO, name, _strlen(name));
 

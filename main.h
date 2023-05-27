@@ -1,6 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -124,15 +125,15 @@ void free_alias_list(alias_t *head);
 list_t *add_node_end(list_t **head, char *dir);
 void free_list(list_t *head);
 
-void help_all(void);
-void help_alias(void);
-void help_cd(void);
-void help_exit(void);
-void help_help(void);
-void help_env(void);
-void help_setenv(void);
-void help_unsetenv(void);
-void help_history(void);
+void aid_all(void);
+void aid_alias(void);
+void aid_cd(void);
+void aid_exit(void);
+void aid_help(void);
+void aid_env(void);
+void aid_setenv(void);
+void aid_unsetenv(void);
+void aid_history(void);
 
 int proc_file_commands(char *file_path, int *exe_ret);
 #endif /* MAIN_H */
