@@ -108,15 +108,15 @@ char **_copyenv(void);
 void free_env(void);
 char **_getenv(const char *var);
 
-/* Error Handling */
-int create_error(char **args, int err);
-char *error_env(char **args);
-char *error_1(char **args);
-char *error_2_exit(char **args);
-char *error_2_cd(char **args);
-char *error_2_syntax(char **args);
-char *error_126(char **args);
-char *error_127(char **args);
+/* erreur Handling */
+int create_erreur(char **args, int err);
+char *erreur_env(char **args);
+char *erreur_1(char **args);
+char *erreur_2_exit(char **args);
+char *erreur_2_cd(char **args);
+char *erreur_2_syntax(char **args);
+char *erreur_126(char **args);
+char *erreur_127(char **args);
 
 /* Linkedlist Helpers */
 alias_t *add_alias_end(alias_t **head, char *name, char *value);

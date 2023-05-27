@@ -199,10 +199,10 @@ int check_args(char **args)
 		if (cur[0] == ';' || cur[0] == '&' || cur[0] == '|')
 		{
 			if (i == 0 || cur[1] == ';')
-				return (create_error(&args[i], 2));
+				return (create_erreur(&args[i], 2));
 			nex = args[i + 1];
 			if (nex && (nex[0] == ';' || nex[0] == '&' || nex[0] == '|'))
-				return (create_error(&args[i + 1], 2));
+				return (create_erreur(&args[i + 1], 2));
 		}
 	}
 	return (0);
